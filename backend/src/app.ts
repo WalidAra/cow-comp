@@ -20,7 +20,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-
 app.use("/", router);
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 

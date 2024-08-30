@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
 import { useState } from "react";
@@ -19,39 +20,64 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
+import { useAxios, useFetch } from "@/hooks";
+import { useSession } from "next-auth/react";
+
+type Cow = {
+  id: string;
+  entryDate: string;
+  breed: string;
+};
 
 export default function CowRegister() {
-  const [cows, setCows] = useState([
-    {
-      id: "COW001",
-      entryDate: "2023-05-01",
-      breed: "Holstein",
-    },
-    {
-      id: "COW002",
-      entryDate: "2023-06-15",
-      breed: "Montbéliard",
-    },
-    {
-      id: "COW003",
-      entryDate: "2023-07-20",
-      breed: "Holstein",
-    },
-  ]);
+  const session = useSession();
+
+  const [cows, setCows] = useState<Cow[]>([]);
   const [newCow, setNewCow] = useState({
     id: "",
     entryDate: "",
     breed: "Holstein",
   });
+
+  const { response } = useFetch<Cow[]>({
+    endpoint: "/",
+    method: "GET",
+    feature: "cows",
+    accessToken: session.data?.user?.name as string,
+    includeToken: true,
+    callback() {
+      if (response?.status === true) {
+        setCows(response.data);
+      }
+    },
+  });
+
   const handleInputChange = (e: { target: { name: any; value: any } }) => {
     setNewCow({ ...newCow, [e.target.name]: e.target.value });
   };
   const handleBreedChange = (value: string) => {
     setNewCow({ ...newCow, breed: value });
   };
-  const handleAddCow = () => {
+  const handleAddCow = async () => {
     setCows([...cows, newCow]);
-    setNewCow({ id: "", entryDate: "", breed: "Holstein" });
+    if (session.data?.user?.name) {
+      const res = await useAxios<Cow>({
+        endpoint: "/",
+        method: "POST",
+        body: newCow,
+        feature: "cows",
+        accessToken: session.data.user.name,
+        includeToken: true,
+      });
+
+      if (res.status) {
+        setNewCow({
+          id: res.data.id,
+          entryDate: res.data.entryDate,
+          breed: res.data.breed,
+        });
+      }
+    }
   };
   const handleEditCow = (index: number) => {};
   const handleDeleteCow = (index: number) => {

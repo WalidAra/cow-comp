@@ -7,29 +7,50 @@ export class CowController {
     const data: CreateCowDto = req.body;
     try {
       const cow = await CowModel.createCow(data);
-      res.status(201).json(cow);
+      res
+        .status(201)
+        .json({ status: true, message: "Cow created successfully", data: cow });
     } catch (error) {
       if (error instanceof Error) {
-        res.status(400).json({ error: error.message });
+        res
+          .status(400)
+          .json({ status: false, message: error.message, data: null });
       } else {
-        res.status(400).json({ error: "An unknown error occurred" });
+        res
+          .status(400)
+          .json({
+            status: false,
+            message: "An unknown error occurred",
+            data: null,
+          });
       }
     }
   }
+
   static async getById(req: Request, res: Response) {
     const id = Number(req.params.id);
     try {
       const cow = await CowModel.getCowById(id);
       if (cow) {
-        res.status(200).json(cow);
+        res.status(200).json({ status: true, message: "Cow found", data: cow });
       } else {
-        res.status(404).json({ message: "Cow not found" });
+        res
+          .status(404)
+          .json({ status: false, message: "Cow not found", data: null });
       }
     } catch (error) {
       if (error instanceof Error) {
-        res.status(400).json({ error: error.message });
+        res
+          .status(400)
+          .json({ status: false, message: error.message, data: null });
       } else {
-        res.status(400).json({ error: "An unknown error occurred" });
+        res
+          .status(400)
+          .json({
+            status: false,
+            message: "An unknown error occurred",
+            data: null,
+          });
       }
     }
   }
@@ -37,12 +58,26 @@ export class CowController {
   static async getAll(req: Request, res: Response) {
     try {
       const cows = await CowModel.getAllCows();
-      res.status(200).json(cows);
+      res
+        .status(200)
+        .json({
+          status: true,
+          message: "Cows retrieved successfully",
+          data: cows,
+        });
     } catch (error) {
       if (error instanceof Error) {
-        res.status(400).json({ error: error.message });
+        res
+          .status(400)
+          .json({ status: false, message: error.message, data: null });
       } else {
-        res.status(400).json({ error: "An unknown error occurred" });
+        res
+          .status(400)
+          .json({
+            status: false,
+            message: "An unknown error occurred",
+            data: null,
+          });
       }
     }
   }
@@ -52,12 +87,22 @@ export class CowController {
     const data: UpdateCowDto = req.body;
     try {
       const cow = await CowModel.updateCow(id, data);
-      res.status(200).json(cow);
+      res
+        .status(200)
+        .json({ status: true, message: "Cow updated successfully", data: cow });
     } catch (error) {
       if (error instanceof Error) {
-        res.status(400).json({ error: error.message });
+        res
+          .status(400)
+          .json({ status: false, message: error.message, data: null });
       } else {
-        res.status(400).json({ error: "An unknown error occurred" });
+        res
+          .status(400)
+          .json({
+            status: false,
+            message: "An unknown error occurred",
+            data: null,
+          });
       }
     }
   }
@@ -66,12 +111,26 @@ export class CowController {
     const id = Number(req.params.id);
     try {
       await CowModel.deleteCow(id);
-      res.status(204).send();
+      res
+        .status(204)
+        .json({
+          status: true,
+          message: "Cow deleted successfully",
+          data: null,
+        });
     } catch (error) {
       if (error instanceof Error) {
-        res.status(400).json({ error: error.message });
+        res
+          .status(400)
+          .json({ status: false, message: error.message, data: null });
       } else {
-        res.status(400).json({ error: "An unknown error occurred" });
+        res
+          .status(400)
+          .json({
+            status: false,
+            message: "An unknown error occurred",
+            data: null,
+          });
       }
     }
   }
