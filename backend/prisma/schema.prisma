@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Cow {
+  id              Int           @id @default(autoincrement())
+  cowNumber       String        @unique
+  entryDate       DateTime
+  breed           Breed
+  medicalExams    MedicalExam[]
+  births          Birth[]
+  dailyProductions DailyProduction[]
+}
+
+model MedicalExam {
+  id        Int      @id @default(autoincrement())
+  examDate  DateTime
+  disease   String?
+  cow       Cow      @relation(fields: [cowId], references: [id])
+  cowId     Int
+}
+
+model Birth {
+  id           Int      @id @default(autoincrement())
+  birthDate    DateTime
+  motherCow    Cow      @relation(fields: [cowId], references: [id])
+  cowId        Int
+}
+
+model DailyProduction {
+  id            Int      @id @default(autoincrement())
+  productionDate DateTime
+  milkAmount    Float
+  cow           Cow      @relation(fields: [cowId], references: [id])
+  cowId         Int
+}
+
+enum Breed {
+  HOLSTEIN
+  MONTBELIARDE
+}
