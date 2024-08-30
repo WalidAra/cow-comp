@@ -7,7 +7,6 @@ import YAML from "yamljs";
 import cookieParser from "cookie-parser";
 import router from "@/routes";
 
-import { createServer } from "node:http";
 import { configENV } from "@/config";
 import { logger } from "@/scripts";
 
@@ -21,7 +20,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-const httpServer = createServer(app);
 
 app.use("/", router);
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
