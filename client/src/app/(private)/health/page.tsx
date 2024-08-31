@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
 import { useState } from "react";
@@ -12,8 +13,11 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
+import { useAxios, useFetch } from "@/hooks";
+import { useSession } from "next-auth/react";
 
-export default function Component() {
+export default function HealthCheck() {
+  const session = useSession();
   const [newExam, setNewExam] = useState({
     date: "",
     cowId: "",
@@ -39,24 +43,67 @@ export default function Component() {
       details: "Mastitis, treated with antibiotics and anti-inflammatory",
     },
   ]);
+
+  const { response } = useFetch<any[]>({
+    endpoint: "/",
+    method: "GET",
+    feature: "dailyProduction",
+    accessToken: session.data?.user?.name as string,
+    includeToken: true,
+    callback() {
+      if (response?.status === true) {
+        setMedicalRecords(response.data);
+      }
+    },
+  });
+
   const handleNewExam = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewExam({
       ...newExam,
       [e.target.name]: e.target.value,
     });
   };
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMedicalRecords([
       ...medicalRecords,
       { id: medicalRecords.length + 1, ...newExam },
     ]);
     setNewExam({ date: "", cowId: "", details: "" });
+
+    if (session.data?.user?.name) {
+      const res = await useAxios<any>({
+        endpoint: "/",
+        method: "POST",
+        body: { newExam },
+        feature: "cows",
+        accessToken: session.data.user.name,
+        includeToken: true,
+      });
+
+      if (res.status) {
+        setNewExam({ date: "", cowId: "", details: "" });
+      }
+    }
   };
-  const handleEdit = (id: number) => {};
+
+  const handleEdit = (id: number) => {
+    const recordToEdit = medicalRecords.find((record) => record.id === id);
+    if (recordToEdit) {
+      setNewExam({
+        date: recordToEdit.date,
+        cowId: recordToEdit.cowId,
+        details: recordToEdit.details,
+      });
+      setMedicalRecords(medicalRecords.filter((record) => record.id !== id));
+    }
+  };
+
   const handleDelete = (id: number) => {
     setMedicalRecords(medicalRecords.filter((record) => record.id !== id));
   };
+
   return (
     <div className="w-full max-w-6xl mx-auto p-6 sm:p-8">
       <h1 className="text-2xl font-bold mb-6">Cow Medical Records</h1>

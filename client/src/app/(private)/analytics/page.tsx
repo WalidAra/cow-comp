@@ -1,15 +1,9 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -19,8 +13,11 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
+import { useSession } from "next-auth/react";
+import { useAxios, useFetch } from "@/hooks";
 
 export default function Analytics() {
+  const session = useSession();
   const [cows, setCows] = useState([
     {
       id: "COW001",
@@ -38,6 +35,20 @@ export default function Analytics() {
       breed: "Holstein",
     },
   ]);
+
+  const { response } = useFetch<any[]>({
+    endpoint: "/",
+    method: "GET",
+    feature: "dailyProduction",
+    accessToken: session.data?.user?.name as string,
+    includeToken: true,
+    callback() {
+      if (response?.status === true) {
+        setCows(response.data);
+      }
+    },
+  });
+
   const [newCow, setNewCow] = useState({
     id: "",
     entryDate: "",
@@ -49,10 +60,28 @@ export default function Analytics() {
   const handleBreedChange = (value: string) => {
     setNewCow({ ...newCow, breed: value });
   };
-  const handleAddCow = () => {
-    setCows([...cows, newCow]);
-    setNewCow({ id: "", entryDate: "", breed: "Holstein" });
-  };
+   const handleAddCow = async () => {
+     setCows([...cows, newCow]);
+     setNewCow({ id: "", entryDate: "", breed: "Holstein" });
+     if (session.data?.user?.name) {
+       const res = await useAxios<any>({
+         endpoint: "/",
+         method: "POST",
+         body: newCow,
+         feature: "cows",
+         accessToken: session.data.user.name,
+         includeToken: true,
+       });
+
+       if (res.status) {
+         setNewCow({
+           id: res.data.id,
+           entryDate: res.data.entryDate,
+           breed: res.data.breed,
+         });
+       }
+     }
+   };
   const handleEditCow = (index: number) => {};
   const handleDeleteCow = (index: number) => {
     const updatedCows = [...cows];
@@ -92,7 +121,6 @@ export default function Analytics() {
               required
             />
           </div>
-          
         </div>
         <div className="mt-4 flex justify-start">
           <Button onClick={handleAddCow}>Add Cow</Button>

@@ -10,7 +10,7 @@ This project is a backend application designed to manage the daily operations of
 - [Environment Variables](#environment-variables)
 - [Running the Application](#running-the-application)
 - [API Endpoints](#api-endpoints)
-- [Contributing](#contributing)
+- [Screenshots](#screenshots)
 - [License](#license)
 
 ## Features
@@ -142,9 +142,14 @@ The server will start on `http://localhost:3000`.
 - Delete a daily production record by ID
     - `DELETE /api/daily-productions/:id`
 
-## Contributing
+## Screenshots
 
-Contributions are welcome! Please fork this repository, create a new branch, and submit a pull request.
+![Screenshot 1](./one.png)
+![Screenshot 2](./two.png)
+![Screenshot 3](./three.png)
+![Screenshot 4](./four.png)
+![Screenshot 5](./five.png)
+![Screenshot 6](./six.png)
 
 ## License
 
